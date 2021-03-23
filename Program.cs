@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NServiceBus;
 using Npgsql;
 using NpgsqlTypes;
+using Newtonsoft.Json;
 
 namespace ConsoleApp
 {
@@ -12,7 +13,12 @@ namespace ConsoleApp
         {
             var config = new EndpointConfiguration("Moo");
             config.EnableInstallers();
+            var jsonSettings = new JsonSerializerSettings {
+                DefaultValueHandling = DefaultValueHandling.Include
+            };
             var persistence = config.UsePersistence<SqlPersistence>();
+            var sagaSettings = persistence.SagaSettings();
+            sagaSettings.JsonSettings(jsonSettings);
             var dialect = persistence.SqlDialect<SqlDialect.PostgreSql>();
             dialect.JsonBParameterModifier(
                 modifier: parameter => {
